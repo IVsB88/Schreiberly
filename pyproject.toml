@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "schreibarrly"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "pynput==1.7.7",
+    "pystray==0.19.5",
+    "pywin32==308",
+    "psutil==6.1.1",
+    "requests==2.32.3",
+    "winotify==1.1.0",
+    "Pillow==10.4.0",
+]
+
+[project.scripts]
+schreibarrly = "schreibarrly.app:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
