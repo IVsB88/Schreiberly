@@ -16,12 +16,14 @@ Runs entirely offline via [Ollama](https://ollama.com). No text leaves your mach
 
 The app detects which program is in the foreground and adjusts the correction style automatically: formal register for Outlook, concise for Jira, casual for Teams.
 
+**Tray menu:** Right-click the tray icon to access About, **Launch at startup** (toggle Windows auto-start), and Quit.
+
 ---
 
 ## Requirements
 
 - Windows 10 or 11
-- [Ollama](https://ollama.com) installed and running
+- [Ollama](https://ollama.com) installed and **running** — Schreibarrly calls it on every correction. If Ollama is not running you will get an error (red tray icon). You can add Ollama to Windows startup manually, or launch it from the Start menu before using the hotkey.
 - A supported GPU is strongly recommended (see latency table below)
 
 ---
@@ -91,15 +93,12 @@ Logs are written to `%APPDATA%\Schreibarrly\schreibarrly.log`.
 ## Development
 
 ```bash
-pip install -r requirements.txt
 pip install -e .
 pytest
-python -m schreibarrly.app   # or: schreibarrly (after pip install -e .)
+python -m schreibarrly
 ```
 
-Source lives in `schreibarrly/`. Design doc and V2 TODOs are in `docs/`.
-
-See `INTEGRATION_TEST.md` for the manual smoke-test checklist to run before each release.
+Source lives in `schreibarrly/`.
 
 ---
 

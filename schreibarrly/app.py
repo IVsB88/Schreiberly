@@ -20,6 +20,7 @@ from schreibarrly.config import load_config, save_config, DEFAULT_CONFIG_PATH
 from schreibarrly.context import detect_context
 from schreibarrly.db import init_db, log_correction
 from schreibarrly.ollama import call_ollama, strip_preamble
+from schreibarrly.startup import is_startup_enabled, set_startup_enabled
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 
@@ -223,6 +224,18 @@ def _on_about(_icon, _item) -> None:
     _show_toast("Schreibarrly", f"Schreibarrly v0.1.0 — Hotkey: {hotkey}")
 
 
+def _on_toggle_startup(_icon, _item) -> None:
+    enabled = not is_startup_enabled()
+    try:
+        set_startup_enabled(enabled)
+        msg = "Schreibarrly will start automatically at login." if enabled else "Removed from startup."
+        _show_toast("Schreibarrly", msg)
+        logging.info("startup set to %s", enabled)
+    except Exception:
+        logging.exception("failed to set startup")
+        _show_toast("Schreibarrly", "Could not update startup setting.")
+
+
 def _on_quit(icon, _item) -> None:
     icon.stop()
 
@@ -260,6 +273,11 @@ def main() -> None:
         pystray.MenuItem(_status_text, None, enabled=False),
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("About Schreibarrly", _on_about),
+        pystray.MenuItem(
+            "Launch at startup",
+            _on_toggle_startup,
+            checked=lambda item: is_startup_enabled(),
+        ),
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("Quit", _on_quit),
     )
