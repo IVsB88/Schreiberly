@@ -235,7 +235,11 @@ def _on_hotkey() -> None:
 
 def _on_about(_icon, _item) -> None:
     hotkey = _config.get("hotkey", "<ctrl>+<shift>+g")
-    _show_toast("Schreibarrly", f"Schreibarrly v0.1.0 — Hotkey: {hotkey}")
+    try:
+        version = (Path(__file__).parent.parent / "VERSION").read_text().strip()
+    except OSError:
+        version = "unknown"
+    _show_toast("Schreibarrly", f"Schreibarrly v{version} — Hotkey: {hotkey}")
 
 
 def _on_toggle_startup(_icon, _item) -> None:
