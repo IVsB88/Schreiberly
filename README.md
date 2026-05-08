@@ -25,7 +25,7 @@ The app detects which program is in the foreground and adjusts the correction st
 ## Requirements
 
 - Windows 10 or 11
-- [Ollama](https://ollama.com) installed and **running** — Schreibarrly calls it on every correction. If Ollama is not running you will get an error (red tray icon). You can add Ollama to Windows startup manually, or launch it from the Start menu before using the hotkey.
+- [Ollama](https://ollama.com) installed and **running** — Schreibarrly calls it on every correction. If Ollama is not running, the tray icon turns red and hovering over it shows **"Schreibarrly — Ollama not running"**. You can add Ollama to Windows startup manually, or launch it from the Start menu before using the hotkey.
 - A supported GPU is strongly recommended (see latency table below)
 
 ---
@@ -53,7 +53,7 @@ Correction time depends on your hardware and text length. The app has a 30-secon
 | **RTX 3050 / RX 6600** | ~4–6s | ~15s | ~35s | May hit timeout on long texts |
 | **CPU only** | ~15–45s | ~45–90s | ~2–4 min | Increase timeout, use lighter model |
 
-**Cold start:** The first correction after launching the app loads the model into GPU memory. This adds 3–10 seconds on first use. Subsequent corrections are faster.
+**Cold start:** The first correction after launching the app (or after the system wakes from sleep) loads the model into GPU memory. If the model takes longer than the timeout to load, the app automatically retries once — you will see the tray icon go amber and a "warming up" notification appear. Subsequent corrections are faster.
 
 **Rule of thumb:** For Jira comments and Teams messages (under 100 words), any modern GPU feels instant. For long emails (300–500 words), a mid-range GPU (RTX 3060 or better) keeps corrections under 30 seconds.
 
