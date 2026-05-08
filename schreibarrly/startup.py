@@ -66,10 +66,14 @@ def _task_xml() -> str:
 </Task>"""
 
 
+_NO_WINDOW = subprocess.CREATE_NO_WINDOW
+
+
 def is_startup_enabled() -> bool:
     result = subprocess.run(
         ["schtasks", "/query", "/tn", _TASK_NAME],
         capture_output=True,
+        creationflags=_NO_WINDOW,
     )
     return result.returncode == 0
 
@@ -79,6 +83,7 @@ def set_startup_enabled(enabled: bool) -> None:
         subprocess.run(
             ["schtasks", "/delete", "/tn", _TASK_NAME, "/f"],
             capture_output=True,
+            creationflags=_NO_WINDOW,
         )
         return
 
@@ -95,6 +100,7 @@ def set_startup_enabled(enabled: bool) -> None:
         subprocess.run(
             ["schtasks", "/create", "/tn", _TASK_NAME, "/xml", tmp_path, "/f"],
             capture_output=True,
+            creationflags=_NO_WINDOW,
             check=True,
         )
     finally:

@@ -116,8 +116,10 @@ def _get_foreground_window_info() -> tuple[str, str]:
 
 def _show_toast(title: str, message: str) -> None:
     try:
-        toast = Notification(app_id="Schreibarrly", title=title, msg=message)
-        toast.show()
+        if _tray is not None:
+            _tray.notify(message, title)
+        else:
+            Notification(app_id="Schreibarrly", title=title, msg=message).show()
     except Exception:
         logging.exception("toast failed")
 
@@ -125,7 +127,7 @@ def _show_toast(title: str, message: str) -> None:
 # ── Tray state ────────────────────────────────────────────────────────────────
 
 
-def _set_state(state: str) -> None:
+def _set_state(state: str, title: str | None = None) -> None:
     global _state
     _state = state
     if _tray is None:
@@ -136,7 +138,7 @@ def _set_state(state: str) -> None:
         "error": _ICON_ERROR,
     }
     _tray.icon = icon_map.get(state, _ICON_IDLE)
-    _tray.title = f"Schreibarrly — {state}"
+    _tray.title = title or f"Schreibarrly — {state}"
 
 
 # ── Correction logic ──────────────────────────────────────────────────────────
@@ -175,14 +177,27 @@ def _do_correction() -> None:
         ctx = detect_context(proc, title)
         logging.info("correction started context=%s words=%d", ctx, len(words))
 
-        raw = call_ollama(
-            _session,
-            _config["ollama_endpoint"],
-            _config["model"],
-            ctx,
-            text,
-            _config["timeout_seconds"],
-        )
+        try:
+            raw = call_ollama(
+                _session,
+                _config["ollama_endpoint"],
+                _config["model"],
+                ctx,
+                text,
+                _config["timeout_seconds"],
+            )
+        except requests.exceptions.Timeout:
+            # Model was cold (not loaded). Warm-up takes >30s; retry once.
+            logging.info("ollama cold start, retrying once")
+            _show_toast("Schreibarrly", "Ollama is warming up, retrying...")
+            raw = call_ollama(
+                _session,
+                _config["ollama_endpoint"],
+                _config["model"],
+                ctx,
+                text,
+                _config["timeout_seconds"],
+            )
         corrected = strip_preamble(raw)
         _set_clipboard_text(corrected)
         log_correction(_db_conn, ctx, text, raw, corrected)
@@ -191,15 +206,15 @@ def _do_correction() -> None:
 
     except requests.exceptions.ConnectionError:
         logging.warning("ollama not reachable")
-        _show_toast("Schreibarrly", "Ollama is not running. Start Ollama and try again.")
+        _set_state("error", title="Schreibarrly — Ollama not running")
         error = True
     except requests.exceptions.Timeout:
         logging.warning("ollama timed out")
-        _show_toast("Schreibarrly", "Correction timed out. Try again.")
+        _set_state("error", title="Schreibarrly — correction timed out")
         error = True
     except Exception:
         logging.exception("unexpected error in correction")
-        _show_toast("Schreibarrly", "Unexpected error. Check the log.")
+        _set_state("error", title="Schreibarrly — unexpected error")
         error = True
     finally:
         if timer:
@@ -207,8 +222,7 @@ def _do_correction() -> None:
         _correction_lock.release()
 
     if error:
-        _set_state("error")
-        time.sleep(3)
+        time.sleep(5)
         _set_state("idle")
 
 
@@ -237,6 +251,7 @@ def _on_toggle_startup(_icon, _item) -> None:
 
 
 def _on_quit(icon, _item) -> None:
+    icon.visible = False
     icon.stop()
 
 
