@@ -16,7 +16,9 @@ Runs entirely offline via [Ollama](https://ollama.com). No text leaves your mach
 
 The app detects which program is in the foreground and adjusts the correction style automatically: formal register for Outlook, concise for Jira, casual for Teams.
 
-**Tray menu:** Right-click the tray icon to access About, **Launch at startup** (toggle Windows auto-start), and Quit.
+**Tray icon:** The green circle appears in the system tray (bottom-right corner). On first launch Windows hides it in the overflow — click the **`^`** arrow next to the clock, then drag the icon out to the taskbar. Windows remembers the position permanently after that.
+
+**Tray menu:** Right-click the tray icon to access About, **Launch at startup** (toggle Windows auto-start), and Quit. The startup option uses Windows Task Scheduler and triggers both on login and on resume from sleep or hibernate.
 
 ---
 
